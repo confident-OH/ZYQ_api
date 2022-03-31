@@ -1378,4 +1378,5 @@ int __sys_getsockopt(int fd, int level, int optname, char __user *optval,
 		int __user *optlen);
 int __sys_setsockopt(int fd, int level, int optname, char __user *optval,
 		int optlen);
+asmlinkage long sys_my_info(long i);
 #endif
