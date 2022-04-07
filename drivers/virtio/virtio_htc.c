@@ -16,7 +16,7 @@ struct virtio_test {
     struct virtio_device *vdev;
     struct virtqueue *print_vq;
 
-    struct work_struct print_val_work;
+    struct work_struct htc_work;
     bool stop_update;
     atomic_t stop_once;
 
@@ -45,7 +45,7 @@ static int init_vqs(struct virtio_test *vb)
 {
     struct virtqueue *vqs[1];
     vq_callback_t *callbacks[] = { test_ack };
-    static const char * const names[] = { "print"};
+    static const char * const names[] = { "print" };
     int err, nvqs;
 
     nvqs = virtio_has_feature(vb->vdev, VIRTIO_TEST_F_CAN_PRINT) ? 1 : 0;
@@ -71,7 +71,7 @@ static void virttest_remove(struct virtio_device *vdev)
     struct virtio_test *vb = vdev->priv;
 
     remove_common(vb);
-    cancel_work_sync(&vb->print_val_work);
+    cancel_work_sync(&vb->htc_work);
     kfree(vb);
     vb_dev = NULL;
 }
@@ -81,12 +81,12 @@ static int virttest_validate(struct virtio_device *vdev)
     return 0;
 }
 
-static void print_val_func(struct work_struct *work)
+static void htc_work_func(struct work_struct *work)
 {
     struct virtio_test *vb;
     struct scatterlist sg;
 
-    vb = container_of(work, struct virtio_test, print_val_work);
+    vb = container_of(work, struct virtio_test, htc_work);
     printk("virttest get config change\n");
 
     struct virtqueue *vq = vb->print_vq;
@@ -104,7 +104,7 @@ static void virttest_changed(struct virtio_device *vdev)
     printk("virttest virttest_changed\n");
     if (!vb->stop_update) {
         //atomic_set(&vb->stop_once, 0);
-        queue_work(system_freezable_wq, &vb->print_val_work);
+        queue_work(system_freezable_wq, &vb->htc_work);
     }
 }
 
@@ -113,7 +113,7 @@ static int virttest_probe(struct virtio_device *vdev)
     struct virtio_test *vb;
     int err;
 
-    printk("******create virttest\n");
+    printk("******create virt htc\n");
     if (!vdev->config->get) {
         return -EINVAL;
     }
@@ -125,7 +125,7 @@ static int virttest_probe(struct virtio_device *vdev)
     }
     vb->num[0] = 0;
     vb->vdev = vdev;
-    INIT_WORK(&vb->print_val_work, print_val_func);
+    INIT_WORK(&vb->htc_work, htc_work_func);
 
     vb->stop_update = false;
 

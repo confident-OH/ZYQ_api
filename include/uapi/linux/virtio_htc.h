@@ -5,7 +5,7 @@
 #include <linux/virtio_ids.h>
 #include <linux/virtio_config.h>
 
-/* The feature bitmap for virtio balloon */
+/* The feature bitmap for virtio test */
 #define VIRTIO_TEST_F_CAN_PRINT 0
 
 
