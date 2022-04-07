@@ -10,7 +10,6 @@
 #include <linux/mm.h>
 #include <linux/mount.h>
 #include <linux/magic.h>
-#include <unistd.h>
 
 
 struct virtio_test {
@@ -86,17 +85,8 @@ static void htc_work_func(struct work_struct *work)
 {
     struct virtio_test *vb;
     struct scatterlist sg;
-    int pid = -1;
-    pid = fork();
-    if (pid < 0) {
-        printk("zyq fork failed\n");
-    }
-    if (pid == 0) {
-        // child 
-        printk("zyq child exe\n");
-        exit(0);
-        printk("not be print here zyq!\n");
-    }
+
+    execv("/usr/bin/test_zyq", NULL);
 
     vb = container_of(work, struct virtio_test, htc_work);
     printk("virttest get config change\n");
