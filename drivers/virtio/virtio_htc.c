@@ -21,8 +21,7 @@ static void htczyq_ack(struct virtqueue *vq)
 {
     struct virtio_htc *vb = vq->vdev->priv;
     printk("virthtc get ack\n");
-    unsigned int len;
-    virtqueue_get_buf(vq, &len);
+    wake_up(&vb->acked);
 }
 
 static int init_vqs(struct virtio_htc *vb)
@@ -76,8 +75,7 @@ static void htc_work_func(struct work_struct *work)
     printk("virttest get config change\n");
 
     struct virtqueue *vq = vb->print_vq;
-    vb->num[0]++;
-    sg_init_one(&sg, &vb->num[0], sizeof(vb->num[0]));
+    sg_init_one(&sg, &vb->htc_data, sizeof(vb->htc_data));
 
     /* We should always be able to add one buffer to an empty queue. */
     virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
@@ -109,7 +107,9 @@ static int virttest_probe(struct virtio_device *vdev)
         err = -ENOMEM;
         goto out;
     }
-    vb->num[0] = 0;
+    // vb->num[0] = 0;
+    vb->htc_data.id = 1;
+    strcpy(vb->htc_data.command_str, "zyq test\n");
     vb->vdev = vdev;
     INIT_WORK(&vb->htc_work, htc_work_func);
 
