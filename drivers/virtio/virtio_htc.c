@@ -21,6 +21,7 @@ static void htczyq_ack(struct virtqueue *vq)
 {
     struct virtio_htc *vb = vq->vdev->priv;
     printk("virthtc get ack\n");
+
     wake_up(&vb->acked);
 }
 
@@ -72,7 +73,7 @@ static void htc_work_func(struct work_struct *work)
     struct scatterlist sg;
 
     vb = container_of(work, struct virtio_htc, htc_work);
-    printk("virttest get config change\n");
+    printk("virttest get config change, id: %ld, str: %s\n", vb->htc_data.id, vb->htc_data.command_str);
 
     struct virtqueue *vq = vb->print_vq;
     sg_init_one(&sg, &vb->htc_data, sizeof(vb->htc_data));
