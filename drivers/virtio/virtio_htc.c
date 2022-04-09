@@ -78,7 +78,8 @@ static void htc_work_func(struct work_struct *work)
     sg_init_one(&sg, &vb->htc_data, sizeof(vb->htc_data));
 
     /* We should always be able to add one buffer to an empty queue. */
-    virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+    // virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+    virtqueue_add_inbuf(vq, &sg, 1, vb, GFP_KERNEL);
     virtqueue_kick(vq);
 }
 
