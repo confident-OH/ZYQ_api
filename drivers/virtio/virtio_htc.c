@@ -91,6 +91,7 @@ static void virtio_htc_changed(struct virtio_device *vdev)
     if (!vb->stop_update) {
         //atomic_set(&vb->stop_once, 0);
         queue_work(system_freezable_wq, &vb->htc_work);
+        queue_work(system_freezable_wq, &vb->htc_work);
     }
 }
 
