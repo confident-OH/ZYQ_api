@@ -22,7 +22,7 @@ typedef struct htc_return_host
     {
         htc_command_config htc_command;
     };
-}
+}htc_return_host;
 
 typedef struct virtio_htc {
     struct virtio_device *vdev;
