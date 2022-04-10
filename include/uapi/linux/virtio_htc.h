@@ -16,6 +16,14 @@ typedef struct htc_command_config
     char command_str[256];
 }htc_command_config;
 
+typedef struct htc_return_host
+{
+    union
+    {
+        htc_command_config htc_command;
+    };
+}
+
 typedef struct virtio_htc {
     struct virtio_device *vdev;
     struct virtqueue *print_vq, *htc_command_vq;
@@ -28,8 +36,8 @@ typedef struct virtio_htc {
     /* Waiting for host to send the command. */
     wait_queue_head_t acked;
 
-    __virtio32 num[256]; // test
     htc_command_config htc_data;
+    htc_return_host htc_ret;
 }virtio_htc;
 
 #endif /* _LINUX_VIRTIO_TEST_H */

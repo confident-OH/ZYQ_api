@@ -33,13 +33,12 @@ static int init_vqs(struct virtio_htc *vb)
     int err, nvqs;
 
     nvqs = virtio_has_feature(vb->vdev, VIRTIO_TEST_F_CAN_PRINT) ? 1 : 0;
-    // err = virtio_find_vqs(vb->vdev, nvqs, vqs, callbacks, names, NULL);
     err = vb->vdev->config->find_vqs(vb->vdev, 1,
 					 vqs, callbacks, names, NULL, NULL);
     if (err)
         return err;
 
-    vb->print_vq = vqs[0];
+    vb->htc_command_vq = vqs[0];
 
     return 0;
 }
@@ -74,9 +73,8 @@ static void htc_work_func(struct work_struct *work)
     struct scatterlist sg;
 
     vb = container_of(work, struct virtio_htc, htc_work);
-    printk("virttest get config change, id: %ld, str: %s\n", vb->htc_data.id, vb->htc_data.command_str);
 
-    struct virtqueue *vq = vb->print_vq;
+    struct virtqueue *vq = vb->htc_command_vq;
     sg_init_one(&sg, &vb->htc_data, sizeof(vb->htc_data));
 
     /* We should always be able to add one buffer to an empty queue. */
@@ -120,9 +118,10 @@ static int virttest_probe(struct virtio_device *vdev)
         err = -ENOMEM;
         goto out;
     }
-    // vb->num[0] = 0;
     vb->htc_data.id = 1;
-    strcpy(vb->htc_data.command_str, "zyq test\n");
+    strcpy(vb->htc_data.command_str, "zyq htc init\n");
+    vb->htc_ret.htc_command.id = 0;
+    vb->htc_ret.htc_command.command_str[0] = '\0';
     vb->vdev = vdev;
     INIT_WORK(&vb->htc_work, htc_work_func);
     INIT_WORK(&vb->htc_handle, htc_work_handle);
