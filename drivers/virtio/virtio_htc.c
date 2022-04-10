@@ -114,8 +114,8 @@ static void htc_work_handle(struct work_struct *work)
         break;
     }
 
-    htc_ret.htc_command.id = conf->id;
-    strcpy(htc_ret.htc_command.command_str, conf->command_str);
+    vb->htc_ret.htc_command.id = conf->id;
+    strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
 
     sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_data));
 
