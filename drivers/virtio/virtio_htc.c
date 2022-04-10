@@ -58,6 +58,7 @@ static void virttest_remove(struct virtio_device *vdev)
 
     remove_common(vb);
     cancel_work_sync(&vb->htc_work);
+    cancel_work_sync(&vb->htc_handle);
     kfree(vb);
     vb_dev = NULL;
 }
@@ -84,6 +85,15 @@ static void htc_work_func(struct work_struct *work)
     virtqueue_kick(vq);
 }
 
+static void htc_work_handle(struct work_struct *work)
+{
+    struct virtio_htc *vb;
+    struct scatterlist sg;
+
+    vb = container_of(work, struct virtio_htc, htc_handle);
+    printk("htc real work, id: %ld, str: %s\n", vb->htc_data.id, vb->htc_data.command_str);
+}
+
 static void virtio_htc_changed(struct virtio_device *vdev)
 {
     struct virtio_htc *vb = vdev->priv;
@@ -91,7 +101,7 @@ static void virtio_htc_changed(struct virtio_device *vdev)
     if (!vb->stop_update) {
         //atomic_set(&vb->stop_once, 0);
         queue_work(system_freezable_wq, &vb->htc_work);
-        queue_work(system_freezable_wq, &vb->htc_work);
+        queue_work(system_freezable_wq, &vb->htc_handle);
     }
 }
 
@@ -115,6 +125,7 @@ static int virttest_probe(struct virtio_device *vdev)
     strcpy(vb->htc_data.command_str, "zyq test\n");
     vb->vdev = vdev;
     INIT_WORK(&vb->htc_work, htc_work_func);
+    INIT_WORK(&vb->htc_handle, htc_work_handle);
 
     vb->stop_update = false;
 

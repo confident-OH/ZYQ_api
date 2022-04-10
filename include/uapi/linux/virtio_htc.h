@@ -21,6 +21,7 @@ typedef struct virtio_htc {
     struct virtqueue *print_vq, *htc_command_vq;
 
     struct work_struct htc_work;
+    struct work_struct htc_handle;
     bool stop_update;
     atomic_t stop_once;
 
