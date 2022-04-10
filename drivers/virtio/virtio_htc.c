@@ -27,19 +27,19 @@ static void htczyq_ack(struct virtqueue *vq)
 
 static int init_vqs(struct virtio_htc *vb)
 {
-    struct virtqueue *vqs[1];
-    vq_callback_t *callbacks[] = { htczyq_ack };
-    static const char * const names[] = { "print" };
+    struct virtqueue *vqs[2];
+    vq_callback_t *callbacks[] = { htczyq_ack, htczyq_ack };
+    static const char * const names[] = { "get htc command", "return guest result" };
     int err, nvqs;
 
     nvqs = virtio_has_feature(vb->vdev, VIRTIO_TEST_F_CAN_PRINT) ? 1 : 0;
-    err = vb->vdev->config->find_vqs(vb->vdev, 1,
+    err = vb->vdev->config->find_vqs(vb->vdev, 2,
 					 vqs, callbacks, names, NULL, NULL);
     if (err)
         return err;
 
     vb->htc_command_vq = vqs[0];
-    // vb->htc_return_vq = vqs[1];
+    vb->htc_return_vq = vqs[1];
 
     return 0;
 }
@@ -98,7 +98,7 @@ static void htc_work_handle(struct work_struct *work)
     vb = container_of(work, struct virtio_htc, htc_handle);
     conf = &(vb->htc_data);
     printk("htc real work, id: %lld, str: %s\n", conf->id, conf->command_str);
-    struct virtqueue *vq = vb->htc_command_vq;
+    struct virtqueue *vq = vb->htc_return_vq;
     
     switch (conf->id)
     {
@@ -118,7 +118,7 @@ static void htc_work_handle(struct work_struct *work)
     vb->htc_ret.htc_command.id = conf->id;
     strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
 
-    sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_data));
+    sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
 
     virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
     virtqueue_kick(vq);
