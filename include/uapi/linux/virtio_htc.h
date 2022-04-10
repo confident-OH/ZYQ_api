@@ -26,7 +26,7 @@ typedef struct htc_return_host
 
 typedef struct virtio_htc {
     struct virtio_device *vdev;
-    struct virtqueue *print_vq, *htc_command_vq;
+    struct virtqueue *htc_return_vq, *htc_command_vq;
 
     struct work_struct htc_work;
     struct work_struct htc_handle;

@@ -39,6 +39,7 @@ static int init_vqs(struct virtio_htc *vb)
         return err;
 
     vb->htc_command_vq = vqs[0];
+    // vb->htc_return_vq = vqs[1];
 
     return 0;
 }
@@ -71,6 +72,7 @@ static void htc_work_func(struct work_struct *work)
 {
     struct virtio_htc *vb;
     struct scatterlist sg;
+    unsigned int unused;
 
     vb = container_of(work, struct virtio_htc, htc_work);
 
@@ -81,15 +83,45 @@ static void htc_work_func(struct work_struct *work)
     // virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
     virtqueue_add_inbuf(vq, &sg, 1, vb, GFP_KERNEL);
     virtqueue_kick(vq);
+
+    wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
 }
 
 static void htc_work_handle(struct work_struct *work)
 {
     struct virtio_htc *vb;
     struct scatterlist sg;
+    struct htc_command_config *conf = NULL;
+    unsigned int unused;
 
     vb = container_of(work, struct virtio_htc, htc_handle);
-    printk("htc real work, id: %ld, str: %s\n", vb->htc_data.id, vb->htc_data.command_str);
+    conf = &(vb->htc_data);
+    printk("htc real work, id: %lld, str: %s\n", conf->id, conf->command_str);
+    struct virtqueue *vq = vb->htc_command_vq;
+    
+    switch (conf->id)
+    {
+    case 1:
+        /* return the memory info */
+        break;
+    case 2:
+        /* load and exec a program */
+        break;
+    case 3:
+        /* load and start a module */
+        break;
+    default:
+        break;
+    }
+
+    htc_ret.htc_command.id = conf->id;
+    strcpy(htc_ret.htc_command.command_str, conf->command_str);
+
+    sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_data));
+
+    virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+    virtqueue_kick(vq);
+    wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
 }
 
 static void virtio_htc_changed(struct virtio_device *vdev)
