@@ -92,6 +92,7 @@ static void htc_work_func(struct work_struct *work)
     virtqueue_kick(vq);
 
     wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
+    queue_work(system_freezable_wq, &vb->htc_handle);
 }
 
 static void htc_work_handle(struct work_struct *work)
@@ -140,7 +141,6 @@ static void virtio_htc_changed(struct virtio_device *vdev)
     if (!vb->stop_update) {
         //atomic_set(&vb->stop_once, 0);
         queue_work(system_freezable_wq, &vb->htc_work);
-        queue_work(system_freezable_wq, &vb->htc_handle);
     }
 }
 
