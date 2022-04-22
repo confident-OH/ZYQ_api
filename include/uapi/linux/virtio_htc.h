@@ -6,6 +6,7 @@
 #include <linux/virtio_ids.h>
 #include <linux/virtio_config.h>
 #include <linux/workqueue.h>
+#include <linux/fs.h>
 
 /* The feature bitmap for virtio test */
 #define VIRTIO_TEST_F_CAN_PRINT 0
@@ -18,6 +19,7 @@ typedef struct htc_command_config
 
 typedef struct htc_return_host
 {
+    int status;
     union
     {
         htc_command_config htc_command;

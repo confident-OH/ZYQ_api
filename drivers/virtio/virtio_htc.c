@@ -8,6 +8,7 @@
 #include <linux/mm.h>
 #include <linux/mount.h>
 #include <linux/magic.h>
+#include <linux/notifier.h>
 
 
 static struct virtio_device_id id_table[] = {
@@ -16,6 +17,12 @@ static struct virtio_device_id id_table[] = {
 };
 
 static struct virtio_htc *vb_dev;
+
+struct htc_return_host htc_return_list[256];
+
+int htc_return_start, htc_return_end;
+
+static RAW_NOTIFIER_HEAD(test_chain_head);
 
 static void htczyq_ack(struct virtqueue *vq)
 {
@@ -107,6 +114,7 @@ static void htc_work_handle(struct work_struct *work)
         break;
     case 2:
         /* load and exec a program */
+
         break;
     case 3:
         /* load and start a module */
@@ -171,6 +179,10 @@ static int virttest_probe(struct virtio_device *vdev)
     atomic_set(&vb->stop_once, 0);
     vb_dev = vb;
 
+    htc_return_start = 0;
+    htc_return_end = 0;
+    memset(htc_return_list, 0, sizeof(htc_return_list));
+
     return 0;
 
 out_free_vb:
@@ -195,7 +207,20 @@ static struct virtio_driver virtio_htc_driver = {
     .config_changed = virtio_htc_changed,
 };
 
-module_virtio_driver(virtio_htc_driver);
+// module_virtio_driver(virtio_htc_driver);
+
+static int __init virtio_htc_driver_init(void)
+{
+    return register_virtio_driver(&(virtio_htc_driver));
+}
+module_init(virtio_htc_driver_init);
+
+static void __exit virtio_htc_driver_exit(void) 
+{
+    unregister_virtio_driver(&(virtio_htc_driver));
+}
+module_exit(virtio_htc_driver_exit);
+
 MODULE_DEVICE_TABLE(virtio, id_table);
-MODULE_DESCRIPTION("Virtio test driver");
+MODULE_DESCRIPTION("Virtio htc driver");
 MODULE_LICENSE("GPL");
