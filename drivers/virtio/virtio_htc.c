@@ -142,9 +142,10 @@ int virtio_htc_notifier_event(struct notifier_block *nb, unsigned long event, vo
     switch (event)
     {
     case EVENT_RUN_SUCCESS:
+    {
         htc_return_host *item = (htc_return_host *)v;
         break;
-    
+    }
     default:
         printk("[virtio_htc] unkown event\n");
         break;
