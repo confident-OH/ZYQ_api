@@ -22,7 +22,7 @@ struct htc_return_host htc_return_list[256];
 
 int htc_return_start, htc_return_end;
 
-static RAW_NOTIFIER_HEAD(test_chain_head);
+static RAW_NOTIFIER_HEAD(virtio_htc_chain_head);
 
 static void htczyq_ack(struct virtqueue *vq)
 {
@@ -112,20 +112,22 @@ static void htc_work_handle(struct work_struct *work)
     {
     case 1:
         /* return the memory info */
+        vb->htc_ret.htc_command.id = conf->id;
+        strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
         break;
     case 2:
         /* load and exec a program */
-
+        vb->htc_ret.htc_command.id = conf->id;
+        strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
         break;
     case 3:
         /* load and start a module */
+        vb->htc_ret.htc_command.id = conf->id;
+        strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
         break;
     default:
         break;
     }
-
-    vb->htc_ret.htc_command.id = conf->id;
-    strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
 
     sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
 
@@ -133,6 +135,27 @@ static void htc_work_handle(struct work_struct *work)
     virtqueue_kick(vq);
     wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
 }
+
+
+int virtio_htc_notifier_event(struct notifier_block *nb, unsigned long event, void *v)
+{
+    switch (event)
+    {
+    case EVENT_RUN_SUCCESS:
+        htc_return_host *item = (htc_return_host *)v;
+        break;
+    
+    default:
+        printk("[virtio_htc] unkown event\n");
+        break;
+    }
+    return NOTIFY_DONE;
+}
+
+//define notifier block
+static struct notifier_block virtio_htc_notifier = {
+    .notifier_call = virtio_htc_notifier_event, 
+};
 
 static void virtio_htc_changed(struct virtio_device *vdev)
 {
@@ -211,12 +234,16 @@ static struct virtio_driver virtio_htc_driver = {
 
 static int __init virtio_htc_driver_init(void)
 {
-    return register_virtio_driver(&(virtio_htc_driver));
+    int ret;
+    ret = raw_notifier_chain_register(&virtio_htc_chain_head, &virtio_htc_notifier);
+    ret = register_virtio_driver(&(virtio_htc_driver));
+    return ret;
 }
 module_init(virtio_htc_driver_init);
 
 static void __exit virtio_htc_driver_exit(void) 
 {
+    raw_notifier_chain_unregister(&virtio_htc_chain_head, &virtio_htc_notifier);
     unregister_virtio_driver(&(virtio_htc_driver));
 }
 module_exit(virtio_htc_driver_exit);
