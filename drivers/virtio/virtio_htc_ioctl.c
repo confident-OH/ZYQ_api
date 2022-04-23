@@ -138,7 +138,8 @@ static struct notifier_block virtio_htc_ioctl_notifier = {
 
 int virtio_htc_ioctl_notifier_call(unsigned long val, void *v)
 {
-        return raw_notifier_call_chain(&virtio_htc_ioctl_chain_head, val, v);
+    printk("start virtio_htc_ioctl_notifier_call\n");
+    return raw_notifier_call_chain(&virtio_htc_ioctl_chain_head, val, v);
 }
 
 /* This function is called whenever a process tries to do an ioctl on our 

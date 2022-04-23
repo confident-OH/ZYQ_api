@@ -106,7 +106,6 @@ static void htc_work_handle(struct work_struct *work)
 
     vb = container_of(work, struct virtio_htc, htc_handle);
     conf = &(vb->htc_data);
-    printk("htc real work, id: %lld, str: %s\n", conf->id, conf->command_str);
     struct virtqueue *vq = vb->htc_return_vq;
     
     switch (conf->id)
@@ -131,8 +130,9 @@ static void htc_work_handle(struct work_struct *work)
         break;
     }
 
+    printk("htc real work, id: %lld, str: %s\n", vb->htc_ret.htc_command.id, 
+                                                 vb->htc_ret.htc_command.command_str);
     sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
-
     virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
     virtqueue_kick(vq);
     wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
