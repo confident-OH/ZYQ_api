@@ -1,5 +1,7 @@
 /* 
- * chardev2.c - Create an input/output character device 
+ * virtio_htc_ioctl.c: 
+       Create an input/output character device to 
+       link kernel and user space
  */ 
  
 #include <linux/cdev.h> 
@@ -8,19 +10,22 @@
 #include <linux/fs.h> 
 #include <linux/init.h> 
 #include <linux/irq.h> 
-#include <linux/kernel.h> /* We are doing kernel work */ 
-#include <linux/module.h> /* Specifically, a module */ 
-#include <linux/poll.h> 
- 
-#include "virtio_htc_ioctl.h" 
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/poll.h>
+#include <linux/notifier.h>
+#include "virtio_htc_ioctl.h"
+
 #define SUCCESS 0 
 #define DEVICE_NAME "ioctl_htc_dev" 
-#define BUF_LEN 80 
+#define BUF_LEN 80
  
 enum { 
     CDEV_NOT_USED = 0, 
-    CDEV_EXCLUSIVE_OPEN = 1, 
-}; 
+    CDEV_EXCLUSIVE_OPEN = 1,
+};
+
+static RAW_NOTIFIER_HEAD(virtio_htc_ioctl_chain_head);
  
 /* Is the device open right now? Used to prevent concurrent access into 
  * the same device 
@@ -106,8 +111,36 @@ static ssize_t device_write(struct file *file, const char __user *buffer,
  
     /* Again, return the number of input characters used. */
     return i; 
-} 
- 
+}
+
+int virtio_htc_ioctl_notifier_event(struct notifier_block *nb, unsigned long event, void *v)
+{
+    switch (event)
+    {
+    case RUN_LINE_COMMAND:
+    {
+        char *s = (char *)v;
+        strcpy(message, s);
+        printk("[virtio_htc_ioctl] %s\n", message);
+        break;
+    }
+    default:
+        printk("[virtio_htc_ioctl] unkown event\n");
+        break;
+    }
+    return NOTIFY_DONE;
+}
+
+// notifier block
+static struct notifier_block virtio_htc_ioctl_notifier = {
+    .notifier_call = virtio_htc_ioctl_notifier_event, 
+};
+
+int virtio_htc_ioctl_notifier(unsigned long val, void *v)
+{
+        return raw_notifier_call_chain(&virtio_htc_ioctl_chain_head, val, v);
+}
+
 /* This function is called whenever a process tries to do an ioctl on our 
  * device file. We get two extra parameters (additional to the inode and file 
  * structures, which all device functions get): the number of the ioctl called 
@@ -206,8 +239,10 @@ static int __init chardev2_init(void)
     device_create(cls, NULL, MKDEV(MAJOR_NUM, 0), NULL, DEVICE_FILE_NAME); 
  
     pr_info("Device created on /dev/%s\n", DEVICE_FILE_NAME); 
+
+    ret_val = raw_notifier_chain_register(&virtio_htc_ioctl_chain_head, &virtio_htc_ioctl_notifier);
  
-    return 0; 
+    return ret_val; 
 } 
  
 /* Cleanup - unregister the appropriate file from /proc */ 
@@ -218,10 +253,12 @@ static void __exit chardev2_exit(void)
  
     /* Unregister the device */ 
     unregister_chrdev(MAJOR_NUM, DEVICE_NAME); 
+    raw_notifier_chain_unregister(&virtio_htc_ioctl_chain_head, &virtio_htc_ioctl_notifier);
 } 
  
 module_init(chardev2_init); 
-module_exit(chardev2_exit); 
+module_exit(chardev2_exit);
+EXPORT_SYMBOL(virtio_htc_ioctl_notifier);
  
 MODULE_DESCRIPTION("Virtio htc ioctl");
 MODULE_LICENSE("GPL");

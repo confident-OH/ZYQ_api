@@ -38,5 +38,7 @@
 /* The name of the device file */ 
 #define DEVICE_FILE_NAME "ioctl_htc_dev" 
 #define DEVICE_PATH "/dev/ioctl_htc_dev" 
+
+#define RUN_LINE_COMMAND 1
  
 #endif

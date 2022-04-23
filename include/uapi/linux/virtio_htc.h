@@ -44,4 +44,6 @@ typedef struct virtio_htc {
     htc_return_host htc_ret;
 }virtio_htc;
 
+extern int virtio_htc_ioctl_notifier(unsigned long val, void *v);
+
 #endif /* _LINUX_VIRTIO_TEST_H */
