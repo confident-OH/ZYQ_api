@@ -164,7 +164,7 @@ static struct notifier_block virtio_htc_notifier = {
 static void virtio_htc_changed(struct virtio_device *vdev)
 {
     struct virtio_htc *vb = vdev->priv;
-    printk("virttest virtio_htc_changed\n");
+    vb_dev = vb;
     if (!vb->stop_update) {
         //atomic_set(&vb->stop_once, 0);
         queue_work(system_freezable_wq, &vb->htc_work);
