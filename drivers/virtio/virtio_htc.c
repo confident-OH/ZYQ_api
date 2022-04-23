@@ -146,7 +146,7 @@ int virtio_htc_notifier_event(struct notifier_block *nb, unsigned long event, vo
     case EVENT_RUN_SUCCESS:
     {
         htc_return_host *item = (htc_return_host *)v;
-        queue_work(system_freezable_wq, &vb->htc_handle);
+        queue_work(system_freezable_wq, &(vb_dev.htc_handle));
         break;
     }
     default:
