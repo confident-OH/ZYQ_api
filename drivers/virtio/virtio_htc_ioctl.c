@@ -136,7 +136,7 @@ static struct notifier_block virtio_htc_ioctl_notifier = {
     .notifier_call = virtio_htc_ioctl_notifier_event, 
 };
 
-int virtio_htc_ioctl_notifier(unsigned long val, void *v)
+int virtio_htc_ioctl_notifier_call(unsigned long val, void *v)
 {
         return raw_notifier_call_chain(&virtio_htc_ioctl_chain_head, val, v);
 }
@@ -258,7 +258,7 @@ static void __exit chardev2_exit(void)
  
 module_init(chardev2_init); 
 module_exit(chardev2_exit);
-EXPORT_SYMBOL(virtio_htc_ioctl_notifier);
+EXPORT_SYMBOL(virtio_htc_ioctl_notifier_call);
  
 MODULE_DESCRIPTION("Virtio htc ioctl");
 MODULE_LICENSE("GPL");

@@ -118,7 +118,7 @@ static void htc_work_handle(struct work_struct *work)
         break;
     case 2:
         /* load and exec a program */
-        virtio_htc_ioctl_notifier(RUN_LINE_COMMAND, conf->command_str);
+        virtio_htc_ioctl_notifier_call(RUN_LINE_COMMAND, conf->command_str);
         vb->htc_ret.htc_command.id = conf->id;
         strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
         break;
