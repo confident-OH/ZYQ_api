@@ -102,7 +102,6 @@ static void htc_work_handle(struct work_struct *work)
     struct scatterlist sg;
     struct htc_command_config *conf = NULL;
     unsigned int unused;
-    msleep(2000);
 
     vb = container_of(work, struct virtio_htc, htc_handle);
     conf = &(vb->htc_data);

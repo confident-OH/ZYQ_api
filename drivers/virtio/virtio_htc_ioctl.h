@@ -1,7 +1,8 @@
 #ifndef VIRTIO_HTC_IOCTL
 #define VIRTIO_HTC_IOCTL 
  
-#include <linux/ioctl.h> 
+#include <linux/ioctl.h>
+#include <linux/virtio_htc.h>
  
 /* The major device number. We can not rely on dynamic registration 
  * any more, because ioctls need to know it. 
@@ -37,8 +38,15 @@
  
 /* The name of the device file */ 
 #define DEVICE_FILE_NAME "ioctl_htc_dev" 
-#define DEVICE_PATH "/dev/ioctl_htc_dev" 
+#define DEVICE_PATH "/dev/ioctl_htc_dev"
+#define BUF_LEN 1024
 
 #define RUN_LINE_COMMAND 1
+
+typedef union virtio_htc_ioctl_message
+{
+    char message[BUF_LEN];
+    struct htc_return_host command_message;
+}virtio_htc_ioctl_message;
  
 #endif
