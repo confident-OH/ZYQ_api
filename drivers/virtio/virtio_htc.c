@@ -94,7 +94,7 @@ static void htc_work_func(struct work_struct *work)
 
     wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
     queue_work(system_freezable_wq, &vb->htc_handle);
-    queue_work(system_freezable_wq, &vb_dev->htc_handle);
+    queue_work(system_freezable_wq, &vb->htc_handle);
 }
 
 static void htc_work_handle(struct work_struct *work)
