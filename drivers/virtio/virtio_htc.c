@@ -135,6 +135,7 @@ static void htc_work_handle(struct work_struct *work)
     virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
     virtqueue_kick(vq);
     wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
+    queue_work(system_freezable_wq, work);
 }
 
 
@@ -145,6 +146,7 @@ int virtio_htc_notifier_event(struct notifier_block *nb, unsigned long event, vo
     case EVENT_RUN_SUCCESS:
     {
         htc_return_host *item = (htc_return_host *)v;
+        queue_work(system_freezable_wq, &vb->htc_handle);
         break;
     }
     default:
