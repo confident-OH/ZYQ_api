@@ -117,27 +117,27 @@ static void htc_work_handle(struct work_struct *work)
         si_meminfo(&mem_info);
         vb->htc_ret.id = 1;
         vb->htc_ret.guest_mem_info.uptime = mem_info.uptime;
-        printd("zyq debug uptime: %d__%ld", sizeof(mem_info.uptime), mem_info.uptime);
+        printk("zyq debug uptime: %d__%ld", sizeof(mem_info.uptime), mem_info.uptime);
         vb->htc_ret.guest_mem_info.totalram = mem_info.totalram;
-        printd("zyq debug totalram: %d__%ld", sizeof(mem_info.totalram), mem_info.totalram);
+        printk("zyq debug totalram: %d__%ld", sizeof(mem_info.totalram), mem_info.totalram);
         vb->htc_ret.guest_mem_info.freeram = mem_info.freeram;
-        printd("zyq debug freeram: %d__%ld", sizeof(mem_info.freeram), mem_info.freeram);
+        printk("zyq debug freeram: %d__%ld", sizeof(mem_info.freeram), mem_info.freeram);
         vb->htc_ret.guest_mem_info.sharedram = mem_info.sharedram;
-        printd("zyq debug sharedram: %d__%ld", sizeof(mem_info.sharedram), mem_info.sharedram);
+        printk("zyq debug sharedram: %d__%ld", sizeof(mem_info.sharedram), mem_info.sharedram);
         vb->htc_ret.guest_mem_info.bufferram = mem_info.bufferram;
-        printd("zyq debug bufferram: %d__%ld", sizeof(mem_info.bufferram), mem_info.bufferram);
+        printk("zyq debug bufferram: %d__%ld", sizeof(mem_info.bufferram), mem_info.bufferram);
         vb->htc_ret.guest_mem_info.totalswap = mem_info.totalswap;
-        printd("zyq debug totalswap: %d__%ld", sizeof(mem_info.totalswap), mem_info.totalswap);
+        printk("zyq debug totalswap: %d__%ld", sizeof(mem_info.totalswap), mem_info.totalswap);
         vb->htc_ret.guest_mem_info.freeswap = mem_info.freeswap;
-        printd("zyq debug freeswap: %d__%ld", sizeof(mem_info.freeswap), mem_info.freeswap);
+        printk("zyq debug freeswap: %d__%ld", sizeof(mem_info.freeswap), mem_info.freeswap);
         vb->htc_ret.guest_mem_info.procs = mem_info.procs;
-        printd("zyq debug procs: %d__%ld", sizeof(mem_info.procs), mem_info.procs);
+        printk("zyq debug procs: %d__%ld", sizeof(mem_info.procs), mem_info.procs);
         vb->htc_ret.guest_mem_info.totalhigh = mem_info.totalhigh;
-        printd("zyq debug totalhigh: %d__%ld", sizeof(mem_info.totalhigh), mem_info.totalhigh);
+        printk("zyq debug totalhigh: %d__%ld", sizeof(mem_info.totalhigh), mem_info.totalhigh);
         vb->htc_ret.guest_mem_info.freehigh = mem_info.freehigh;
-        printd("zyq debug freehigh: %d__%ld", sizeof(mem_info.freehigh), mem_info.freehigh);
+        printk("zyq debug freehigh: %d__%ld", sizeof(mem_info.freehigh), mem_info.freehigh);
         vb->htc_ret.guest_mem_info.mem_unit = mem_info.mem_unit;
-        printd("zyq debug mem_unit: %d__%ld", sizeof(mem_info.mem_unit), mem_info.mem_unit);
+        printk("zyq debug mem_unit: %d__%ld", sizeof(mem_info.mem_unit), mem_info.mem_unit);
         break;
     }
     case 2:
