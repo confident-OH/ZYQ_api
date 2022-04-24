@@ -103,9 +103,10 @@ static ssize_t device_write(struct file *file, const char __user *buffer,
     pr_info("device_write(%p,%p,%ld)", file, buffer, length);
     
     down_write(&message_rw_sem);
+    printk("[virtio_htc_ioctl] write before %s\n", message.command_message.htc_command.command_str);
     for (i = 0; i < length; i++) 
         get_user(message.message[i], buffer + i);
-    printk("[virtio_htc_ioctl] write test %s\n", message.command_message.htc_command.command_str);
+    printk("[virtio_htc_ioctl] write after %s\n", message.command_message.htc_command.command_str);
     up_write(&message_rw_sem);
     /* Again, return the number of input characters used. */
     return i; 
