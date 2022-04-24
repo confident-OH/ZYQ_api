@@ -86,7 +86,7 @@ static ssize_t device_read(struct file *file, char __user *buffer,
         length--; 
         bytes_read++;
     }
-    printk("[virtio_htc_ioctl] read test %s\n", message.command_message.htc_command.command_str);
+    printk("[virtio_htc_ioctl] read test %s\n", message.command_message.command_str);
     up_read(&message_rw_sem);
  
     pr_info("Read %d bytes, %ld left\n", bytes_read, length); 
@@ -105,10 +105,10 @@ static ssize_t device_write(struct file *file, const char __user *buffer,
     pr_info("device_write(%p,%p,%ld)", file, buffer, length);
     
     down_write(&message_rw_sem);
-    printk("[virtio_htc_ioctl] write before %s\n", message.command_message.htc_command.command_str);
+    printk("[virtio_htc_ioctl] write before %s\n", message.command_message.command_str);
     for (i = 0; i < length; i++) 
         get_user(message.message[i], buffer + i);
-    printk("[virtio_htc_ioctl] write after %s\n", message.command_message.htc_command.command_str);
+    printk("[virtio_htc_ioctl] write after %s\n", message.command_message.command_str);
     up_write(&message_rw_sem);
     /* Again, return the number of input characters used. */
     return i; 
@@ -122,10 +122,10 @@ int virtio_htc_ioctl_notifier_event(struct notifier_block *nb, unsigned long eve
     {
         char *s = (char *)v;
         down_write(&message_rw_sem);
-        strcpy(message.command_message.htc_command.command_str, s);
+        strcpy(message.command_message.command_str, s);
         message.command_message.status = 0;
         up_write(&message_rw_sem);
-        printk("[virtio_htc_ioctl] %s\n", message.command_message.htc_command.command_str);
+        printk("[virtio_htc_ioctl] %s\n", message.command_message.command_str);
         break;
     }
     default:

@@ -44,10 +44,16 @@
 
 #define RUN_LINE_COMMAND 1
 
+typedef htc_ioctl_message_info
+{
+    int status;
+    char command_str[256];
+}htc_ioctl_message_info;
+
 typedef union virtio_htc_ioctl_message
 {
     char message[BUF_LEN];
-    struct htc_return_host command_message;
+    htc_ioctl_message_info command_message;
 }virtio_htc_ioctl_message;
  
 #endif
