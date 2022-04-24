@@ -110,10 +110,24 @@ static void htc_work_handle(struct work_struct *work)
     switch (conf->id)
     {
     case 1:
+    {
         /* return the memory info */
+        struct sysinfo mem_info;
+        si_meminfo(&mem_info);
         vb->htc_ret.htc_command.id = conf->id;
-        strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
+        vb->htc_ret.guest_mem_info.uptime = mem_info.uptime;
+        vb->htc_ret.guest_mem_info.totalram = mem_info.totalram;
+        vb->htc_ret.guest_mem_info.freeram = mem_info.freeram;
+        vb->htc_ret.guest_mem_info.sharedram = mem_info.sharedram;
+        vb->htc_ret.guest_mem_info.bufferram = mem_info.bufferram;
+        vb->htc_ret.guest_mem_info.totalswap = mem_info.totalswap;
+        vb->htc_ret.guest_mem_info.freeswap = mem_info.freeswap;
+        vb->htc_ret.guest_mem_info.procs = mem_info.procs;
+        vb->htc_ret.guest_mem_info.totalhigh = mem_info.totalhigh;
+        vb->htc_ret.guest_mem_info.freehigh = mem_info.freehigh;
+        vb->htc_ret.guest_mem_info.mem_unit = mem_info.mem_unit;
         break;
+    }
     case 2:
         /* load and exec a program */
         virtio_htc_ioctl_notifier_call(RUN_LINE_COMMAND, conf->command_str);

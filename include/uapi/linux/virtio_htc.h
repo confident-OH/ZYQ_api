@@ -8,6 +8,8 @@
 #include <linux/workqueue.h>
 #include <linux/fs.h>
 #include <linux/rwsem.h>
+#include <linux/mm.h>
+#include <linux/page_reporting.h>
 
 /* The feature bitmap for virtio test */
 #define VIRTIO_TEST_F_CAN_PRINT 0
@@ -20,12 +22,28 @@ typedef struct htc_command_config
     char command_str[256];
 }htc_command_config;
 
+typedef struct htc_mem_status
+{
+    long uptime;		/* Seconds since boot */
+	unsigned long totalram;	/* Total usable main memory size */
+	unsigned long freeram;	/* Available memory size */
+	unsigned long sharedram;	/* Amount of shared memory */
+	unsigned long bufferram;	/* Memory used by buffers */
+	unsigned long totalswap;	/* Total swap space size */
+	unsigned long freeswap;	/* swap space still available */
+	__u16 procs;		   	/* Number of current processes */
+	unsigned long totalhigh;	/* Total high memory size */
+	unsigned long freehigh;	/* Available high memory size */
+	__u32 mem_unit;			/* Memory unit size in bytes */
+}htc_mem_status;
+
 typedef struct htc_return_host
 {
     int status;
     union
     {
         htc_command_config htc_command;
+        struct htc_mem_status guest_mem_info;
     };
 }htc_return_host;
 
