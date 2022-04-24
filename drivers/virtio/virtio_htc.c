@@ -112,9 +112,10 @@ static void htc_work_handle(struct work_struct *work)
     case 1:
     {
         /* return the memory info */
+        printk("zyq debug mem_scan\n");
         struct sysinfo mem_info;
         si_meminfo(&mem_info);
-        vb->htc_ret.htc_command.id = conf->id;
+        vb->htc_ret.htc_command.id = 1;
         vb->htc_ret.guest_mem_info.uptime = mem_info.uptime;
         vb->htc_ret.guest_mem_info.totalram = mem_info.totalram;
         vb->htc_ret.guest_mem_info.freeram = mem_info.freeram;
@@ -143,8 +144,8 @@ static void htc_work_handle(struct work_struct *work)
         break;
     }
 
-    printk("htc real work, id: %lld, str: %s\n", vb->htc_ret.htc_command.id, 
-                                                 vb->htc_ret.htc_command.command_str);
+    printk("htc handle work, id: %lld, str: %s\n", conf->id, 
+                                                 conf->command_str);
     sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
     virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
     virtqueue_kick(vq);
