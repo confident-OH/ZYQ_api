@@ -7,6 +7,7 @@
 #include <linux/virtio_config.h>
 #include <linux/workqueue.h>
 #include <linux/fs.h>
+#include <linux/rwsem.h>
 
 /* The feature bitmap for virtio test */
 #define VIRTIO_TEST_F_CAN_PRINT 0

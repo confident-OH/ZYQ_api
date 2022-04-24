@@ -32,7 +32,8 @@ static RAW_NOTIFIER_HEAD(virtio_htc_ioctl_chain_head);
 static atomic_t already_open = ATOMIC_INIT(CDEV_NOT_USED); 
  
 /* The message the device will give when asked */
-static union virtio_htc_ioctl_message message; 
+static union virtio_htc_ioctl_message message;
+static DECLARE_RWSEM(message_rw_sem);
  
 static struct class *cls; 
  
@@ -72,7 +73,7 @@ static ssize_t device_read(struct file *file, char __user *buffer,
  
     message_ptr += *offset; 
  
-    /* Actually put the data into the buffer */ 
+    down_read(&message_rw_sem);
     while (length) { 
         /* Because the buffer is in the user data segment, not the kernel 
          * data segment, assignment would not work. Instead, we have to 
@@ -82,7 +83,9 @@ static ssize_t device_read(struct file *file, char __user *buffer,
         put_user(*(message_ptr++), buffer++); 
         length--; 
         bytes_read++; 
-    } 
+    }
+    printk("[virtio_htc_ioctl] read test %s\n", message.command_message.htc_command.command_str);
+    up_read(&message_rw_sem);
  
     pr_info("Read %d bytes, %ld left\n", bytes_read, length); 
  
@@ -97,11 +100,13 @@ static ssize_t device_write(struct file *file, const char __user *buffer,
 { 
     int i; 
  
-    pr_info("device_write(%p,%p,%ld)", file, buffer, length); 
- 
+    pr_info("device_write(%p,%p,%ld)", file, buffer, length);
+    
+    down_write(&message_rw_sem);
     for (i = 0; i < length; i++) 
         get_user(message.message[i], buffer + i);
- 
+    printk("[virtio_htc_ioctl] write test %s\n", message.command_message.htc_command.command_str);
+    up_write(&message_rw_sem);
     /* Again, return the number of input characters used. */
     return i; 
 }
@@ -113,8 +118,10 @@ int virtio_htc_ioctl_notifier_event(struct notifier_block *nb, unsigned long eve
     case RUN_LINE_COMMAND:
     {
         char *s = (char *)v;
+        down_write(&message_rw_sem);
         strcpy(message.command_message.htc_command.command_str, s);
         message.command_message.status = 0;
+        up_write(&message_rw_sem);
         printk("[virtio_htc_ioctl] %s\n", message.command_message.htc_command.command_str);
         break;
     }

@@ -3,6 +3,7 @@
  
 #include <linux/ioctl.h>
 #include <linux/virtio_htc.h>
+#include <linux/rwsem.h>
  
 /* The major device number. We can not rely on dynamic registration 
  * any more, because ioctls need to know it. 
