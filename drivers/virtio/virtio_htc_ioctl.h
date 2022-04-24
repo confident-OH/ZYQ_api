@@ -44,7 +44,7 @@
 
 #define RUN_LINE_COMMAND 1
 
-typedef htc_ioctl_message_info
+typedef struct htc_ioctl_message_info
 {
     int status;
     char command_str[256];
