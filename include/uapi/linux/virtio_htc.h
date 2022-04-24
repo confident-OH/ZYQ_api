@@ -18,7 +18,6 @@
 
 typedef struct htc_command_config
 {
-    int64_t id;
     char command_str[256];
 }htc_command_config;
 
@@ -39,7 +38,7 @@ typedef struct htc_mem_status
 
 typedef struct htc_return_host
 {
-    int status;
+    int id;
     union
     {
         htc_command_config htc_command;

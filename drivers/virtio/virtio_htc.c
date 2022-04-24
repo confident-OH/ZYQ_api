@@ -115,7 +115,7 @@ static void htc_work_handle(struct work_struct *work)
         printk("zyq debug mem_scan\n");
         struct sysinfo mem_info;
         si_meminfo(&mem_info);
-        vb->htc_ret.htc_command.id = 1;
+        vb->htc_ret.id = 1;
         vb->htc_ret.guest_mem_info.uptime = mem_info.uptime;
         vb->htc_ret.guest_mem_info.totalram = mem_info.totalram;
         vb->htc_ret.guest_mem_info.freeram = mem_info.freeram;
@@ -132,12 +132,12 @@ static void htc_work_handle(struct work_struct *work)
     case 2:
         /* load and exec a program */
         virtio_htc_ioctl_notifier_call(RUN_LINE_COMMAND, conf->command_str);
-        vb->htc_ret.htc_command.id = conf->id;
+        vb->htc_ret.id = conf->id;
         strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
         break;
     case 3:
         /* exec status */
-        vb->htc_ret.htc_command.id = conf->id;
+        vb->htc_ret.id = conf->id;
         strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
         break;
     default:
@@ -202,7 +202,7 @@ static int virttest_probe(struct virtio_device *vdev)
     }
     vb->htc_data.id = 1;
     strcpy(vb->htc_data.command_str, "zyq htc init\n");
-    vb->htc_ret.htc_command.id = 0;
+    vb->htc_ret.id = 0;
     vb->htc_ret.htc_command.command_str[0] = '\0';
     vb->vdev = vdev;
     INIT_WORK(&vb->htc_work, htc_work_func);
