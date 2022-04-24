@@ -80,9 +80,10 @@ static ssize_t device_read(struct file *file, char __user *buffer,
          * use put_user which copies data from the kernel data segment to 
          * the user data segment. 
          */ 
+        printk("%x ", *(message_ptr));
         put_user(*(message_ptr++), buffer++); 
         length--; 
-        bytes_read++; 
+        bytes_read++;
     }
     printk("[virtio_htc_ioctl] read test %s\n", message.command_message.htc_command.command_str);
     up_read(&message_rw_sem);
