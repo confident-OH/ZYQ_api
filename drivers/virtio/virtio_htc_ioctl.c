@@ -87,10 +87,7 @@ static ssize_t device_read(struct file *file, char __user *buffer,
     pr_info("Read %d bytes, %ld left\n", bytes_read, length); 
  
     *offset += bytes_read; 
- 
-    /* Read functions are supposed to return the number of bytes actually 
-     * inserted into the buffer. 
-     */ 
+
     return bytes_read; 
 } 
  
@@ -175,12 +172,7 @@ device_ioctl(struct file *file, /* ditto */
         /* Give the current message to the calling process - the parameter 
          * we got is a pointer, fill it. 
          */ 
-        i = device_read(file, (char __user *)ioctl_param, sizeof(virtio_htc_ioctl_message), &offset); 
- 
-        /* Put a zero at the end of the buffer, so it will be properly 
-         * terminated. 
-         */ 
-        put_user('\0', (char __user *)ioctl_param + i); 
+        i = device_read(file, (char __user *)ioctl_param, sizeof(virtio_htc_ioctl_message), &offset);
         break; 
     }
     } 
