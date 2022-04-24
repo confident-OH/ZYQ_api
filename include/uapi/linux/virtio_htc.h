@@ -18,7 +18,7 @@
 
 typedef struct htc_command_config
 {
-    int id;
+    long int id;
     char command_str[256];
 }htc_command_config;
 
