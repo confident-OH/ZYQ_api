@@ -24,14 +24,10 @@ typedef struct htc_command_config
 
 typedef struct htc_mem_status
 {
-    long uptime;		/* Seconds since boot */
 	unsigned long totalram;	/* Total usable main memory size */
 	unsigned long freeram;	/* Available memory size */
 	unsigned long sharedram;	/* Amount of shared memory */
 	unsigned long bufferram;	/* Memory used by buffers */
-	unsigned long totalswap;	/* Total swap space size */
-	unsigned long freeswap;	/* swap space still available */
-	__u16 procs;		   	/* Number of current processes */
 	unsigned long totalhigh;	/* Total high memory size */
 	unsigned long freehigh;	/* Available high memory size */
 	__u32 mem_unit;			/* Memory unit size in bytes */
