@@ -39,7 +39,7 @@ typedef struct htc_mem_status
 
 typedef struct htc_return_host
 {
-    int id;
+    long int id;
     union
     {
         htc_command_config htc_command;
