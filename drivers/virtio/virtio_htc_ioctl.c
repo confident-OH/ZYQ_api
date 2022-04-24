@@ -66,8 +66,9 @@ static ssize_t device_read(struct file *file, char __user *buffer,
      */ 
     const char *message_ptr = message.message; 
  
-    if (!*(message_ptr + *offset)) {
-        *offset = 0; /* reset the offset */ 
+    if (*offset >= length) {
+        *offset = 0; /* reset the offset */
+        printk("zyq debug: out offet!");
         return 0; /* signify end of file */ 
     } 
  
@@ -172,6 +173,7 @@ device_ioctl(struct file *file, /* ditto */
          * be the device's message. Get the parameter given to ioctl by 
          * the process. 
          */ 
+        printk("zyq debug: enter set_msg\n");
         device_write(file, (char __user *)ioctl_param, sizeof(virtio_htc_ioctl_message), NULL); 
         break; 
     } 
@@ -180,7 +182,8 @@ device_ioctl(struct file *file, /* ditto */
  
         /* Give the current message to the calling process - the parameter 
          * we got is a pointer, fill it. 
-         */ 
+         */
+        printk("zyq debug: enter get_msg\n");
         i = device_read(file, (char __user *)ioctl_param, sizeof(virtio_htc_ioctl_message), &offset);
         break; 
     }
