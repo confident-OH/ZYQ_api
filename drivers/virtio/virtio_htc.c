@@ -99,7 +99,7 @@ static void htc_work_func(struct work_struct *work)
 static void htc_work_handle(struct work_struct *work)
 {
     struct virtio_htc *vb;
-    struct scatterlist sg;
+    struct scatterlist sg[512];
     struct htc_command_config *conf = NULL;
     unsigned int unused;
 
@@ -130,6 +130,8 @@ static void htc_work_handle(struct work_struct *work)
         printk("zyq debug freehigh: %d__%ld", sizeof(mem_info.freehigh), mem_info.freehigh);
         vb->htc_ret.guest_mem_info.mem_unit = mem_info.mem_unit;
         printk("zyq debug mem_unit: %d__%ld", sizeof(mem_info.mem_unit), mem_info.mem_unit);
+        sg_init_one(&sg[0], &vb->htc_ret, sizeof(vb->htc_ret));
+        virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
         break;
     }
     case 2:
@@ -137,6 +139,8 @@ static void htc_work_handle(struct work_struct *work)
         virtio_htc_ioctl_notifier_call(RUN_LINE_COMMAND, conf->command_str);
         vb->htc_ret.id = conf->id;
         strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
+        sg_init_one(&sg[0], &vb->htc_ret, sizeof(vb->htc_ret));
+        virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
         break;
     case 3:
     {
@@ -144,12 +148,14 @@ static void htc_work_handle(struct work_struct *work)
         while (ioctl_return_end != ioctl_return_start) {
             vb->htc_ret.id = conf->id;
             strcpy(vb->htc_ret.htc_command.command_str, ioctl_return_list[ioctl_return_start].htc_command.command_str);
+            sg_init_one(&sg[ioctl_return_start], &vb->htc_ret, sizeof(vb->htc_ret));
+            virtqueue_add_outbuf(vq, &sg[ioctl_return_start], 1, vb, GFP_KERNEL);
             ioctl_return_start = (ioctl_return_start + 1) % 512;
-            sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
-            virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
         }
         vb->htc_ret.id = conf->id;
         strcpy(vb->htc_ret.htc_command.command_str, "none");
+        sg_init_one(&sg[ioctl_return_start], &vb->htc_ret, sizeof(vb->htc_ret));
+        virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
         break;
     }
         
@@ -159,8 +165,6 @@ static void htc_work_handle(struct work_struct *work)
 
     printk("htc handle work, id: %lld, str: %s\n", conf->id, 
                                                  conf->command_str);
-    sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
-    virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
     virtqueue_kick(vq);
     wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
 }
