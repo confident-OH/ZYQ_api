@@ -32,7 +32,9 @@ static RAW_NOTIFIER_HEAD(virtio_htc_ioctl_chain_head);
 static atomic_t already_open = ATOMIC_INIT(CDEV_NOT_USED); 
  
 /* The message the device will give when asked */
-static union virtio_htc_ioctl_message message;
+// static union virtio_htc_ioctl_message message;
+static union virtio_htc_ioctl_message htc_message_ring[512];
+static int ring_start, ring_end;
 static DECLARE_RWSEM(message_rw_sem);
  
 static struct class *cls; 
@@ -64,7 +66,7 @@ static ssize_t device_read(struct file *file, char __user *buffer,
     /* How far did the process reading the message get? Useful if the message 
      * is larger than the size of the buffer we get to fill in device_read. 
      */ 
-    const char *message_ptr = message.message; 
+    const char *message_ptr = htc_message_ring[ring_start].message; 
  
     if (*offset >= length) {
         *offset = 0; /* reset the offset */
@@ -86,7 +88,7 @@ static ssize_t device_read(struct file *file, char __user *buffer,
         length--; 
         bytes_read++;
     }
-    printk("[virtio_htc_ioctl] read test %s\n", message.command_message.command_str);
+    printk("[virtio_htc_ioctl] read test %s\n", htc_message_ring[ring_start].command_message.command_str);
     up_read(&message_rw_sem);
  
     pr_info("Read %d bytes, %ld left\n", bytes_read, length); 
@@ -105,10 +107,14 @@ static ssize_t device_write(struct file *file, const char __user *buffer,
     pr_info("device_write(%p,%p,%ld)", file, buffer, length);
     
     down_write(&message_rw_sem);
-    printk("[virtio_htc_ioctl] write before %s\n", message.command_message.command_str);
+    printk("[virtio_htc_ioctl] write before %s\n", htc_message_ring[ring_start].command_message.command_str);
     for (i = 0; i < length; i++) 
         get_user(message.message[i], buffer + i);
-    printk("[virtio_htc_ioctl] write after %s\n", message.command_message.command_str);
+    printk("[virtio_htc_ioctl] write after %s\n", htc_message_ring[ring_start].command_message.command_str);
+    if (htc_message_ring[ring_start].command_message.status == 1) {
+        // return htc
+        ring_start = (ring_start + 1)%512;
+    }
     up_write(&message_rw_sem);
     /* Again, return the number of input characters used. */
     return i; 
@@ -122,10 +128,11 @@ int virtio_htc_ioctl_notifier_event(struct notifier_block *nb, unsigned long eve
     {
         char *s = (char *)v;
         down_write(&message_rw_sem);
-        strcpy(message.command_message.command_str, s);
-        message.command_message.status = 0;
+        strcpy(htc_message_ring[ring_end].command_message.command_str, s);
+        htc_message_ring[ring_end].command_message.status = 0;
+        ring_end = (ring_end + 1) % 512;
+        printk("[virtio_htc_ioctl] %s\n", htc_message_ring[ring_end].command_message.command_str);
         up_write(&message_rw_sem);
-        printk("[virtio_htc_ioctl] %s\n", message.command_message.command_str);
         break;
     }
     default:
@@ -142,7 +149,6 @@ static struct notifier_block virtio_htc_ioctl_notifier = {
 
 int virtio_htc_ioctl_notifier_call(unsigned long val, void *v)
 {
-    printk("start virtio_htc_ioctl_notifier_call\n");
     return raw_notifier_call_chain(&virtio_htc_ioctl_chain_head, val, v);
 }
 
@@ -211,7 +217,7 @@ static struct file_operations fops = {
 }; 
  
 /* Initialize the module - Register the character device */ 
-static int __init chardev2_init(void) 
+static int __init virtio_htc_ioctl_init(void) 
 { 
     /* Register the character device (atleast try) */ 
     int ret_val = register_chrdev(MAJOR_NUM, DEVICE_NAME, &fops); 
@@ -234,12 +240,15 @@ static int __init chardev2_init(void)
         printk("error raw_notifier_chain_register failed!\n");
         return -1;
     }
+
+    ring_start = 0;
+    ring_end = 0;
  
     return ret_val; 
 } 
  
 /* Cleanup - unregister the appropriate file from /proc */ 
-static void __exit chardev2_exit(void) 
+static void __exit virtio_htc_ioctl_exit(void) 
 { 
     device_destroy(cls, MKDEV(MAJOR_NUM, 0)); 
     class_destroy(cls); 
@@ -249,8 +258,8 @@ static void __exit chardev2_exit(void)
     raw_notifier_chain_unregister(&virtio_htc_ioctl_chain_head, &virtio_htc_ioctl_notifier);
 } 
  
-module_init(chardev2_init); 
-module_exit(chardev2_exit);
+module_init(virtio_htc_ioctl_init); 
+module_exit(virtio_htc_ioctl_exit);
 EXPORT_SYMBOL(virtio_htc_ioctl_notifier_call);
  
 MODULE_DESCRIPTION("Virtio htc ioctl");
