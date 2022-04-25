@@ -130,7 +130,7 @@ static void htc_work_handle(struct work_struct *work)
         printk("zyq debug freehigh: %d__%ld", sizeof(mem_info.freehigh), mem_info.freehigh);
         vb->htc_ret.guest_mem_info.mem_unit = mem_info.mem_unit;
         printk("zyq debug mem_unit: %d__%ld", sizeof(mem_info.mem_unit), mem_info.mem_unit);
-        sleep(30);
+        ssleep(30);
         sg_init_one(&sg[0], &vb->htc_ret, sizeof(vb->htc_ret));
         virtqueue_add_outbuf(vq, &sg[0], 1, vb, GFP_KERNEL);
         break;
@@ -167,7 +167,7 @@ static void htc_work_handle(struct work_struct *work)
     printk("htc handle work, id: %lld, str: %s\n", conf->id, 
                                                  conf->command_str);
     virtqueue_kick(vq);
-    sleep(30);
+    ssleep(30);
     wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
 }
 
