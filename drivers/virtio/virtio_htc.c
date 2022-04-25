@@ -91,14 +91,14 @@ static void htc_work_func(struct work_struct *work)
     // virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
     virtqueue_add_inbuf(vq, &sg, 1, vb, GFP_KERNEL);
     
-    printk("zyq debug send back the conf");
-    msleep(30000);
+    // printk("zyq debug send back the conf");
+    // msleep(30000);
 
     virtqueue_kick(vq);
 
     wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
-    printk("zyq debug received event");
-    msleep(10000);
+    // printk("zyq debug received event");
+    // msleep(10000);
     queue_work(system_freezable_wq, &vb->htc_handle);
 }
 
@@ -109,8 +109,8 @@ static void htc_work_handle(struct work_struct *work)
     struct htc_command_config *conf = NULL;
     unsigned int unused;
 
-    printk("zyq debug endter htc_work_handle\n");
-    msleep(30000);
+    // printk("zyq debug endter htc_work_handle\n");
+    // msleep(30000);
 
     vb = container_of(work, struct virtio_htc, htc_handle);
     conf = &(vb->htc_data);
@@ -139,7 +139,7 @@ static void htc_work_handle(struct work_struct *work)
         printk("zyq debug freehigh: %d__%ld", sizeof(mem_info.freehigh), mem_info.freehigh);
         vb->htc_ret.guest_mem_info.mem_unit = mem_info.mem_unit;
         printk("zyq debug mem_unit: %d__%ld", sizeof(mem_info.mem_unit), mem_info.mem_unit);
-        msleep(30000);
+        // msleep(30000);
         sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
         virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
         break;
