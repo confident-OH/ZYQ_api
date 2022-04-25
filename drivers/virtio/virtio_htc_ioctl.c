@@ -250,7 +250,8 @@ static int __init virtio_htc_ioctl_init(void)
 
     ring_start = 0;
     ring_end = 0;
-    for (int i = 0; i<RING_LEN; i++) {
+    int i;
+    for (i = 0; i<RING_LEN; i++) {
         htc_message_ring[i].command_message.status = 1;
     }
  
