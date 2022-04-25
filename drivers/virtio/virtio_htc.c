@@ -131,7 +131,7 @@ static void htc_work_handle(struct work_struct *work)
         vb->htc_ret.guest_mem_info.mem_unit = mem_info.mem_unit;
         printk("zyq debug mem_unit: %d__%ld", sizeof(mem_info.mem_unit), mem_info.mem_unit);
         sg_init_one(&sg[0], &vb->htc_ret, sizeof(vb->htc_ret));
-        virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+        virtqueue_add_outbuf(vq, &sg[0], 1, vb, GFP_KERNEL);
         break;
     }
     case 2:
@@ -140,7 +140,7 @@ static void htc_work_handle(struct work_struct *work)
         vb->htc_ret.id = conf->id;
         strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
         sg_init_one(&sg[0], &vb->htc_ret, sizeof(vb->htc_ret));
-        virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+        virtqueue_add_outbuf(vq, &sg[0], 1, vb, GFP_KERNEL);
         break;
     case 3:
     {
@@ -155,7 +155,7 @@ static void htc_work_handle(struct work_struct *work)
         vb->htc_ret.id = conf->id;
         strcpy(vb->htc_ret.htc_command.command_str, "none");
         sg_init_one(&sg[ioctl_return_start], &vb->htc_ret, sizeof(vb->htc_ret));
-        virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+        virtqueue_add_outbuf(vq, &sg[ioctl_return_start], 1, vb, GFP_KERNEL);
         break;
     }
         
