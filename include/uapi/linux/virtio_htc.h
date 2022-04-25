@@ -16,6 +16,8 @@
 
 #define EVENT_RUN_SUCCESS 0
 
+#define RETURN_LIST_FULL 2
+
 typedef struct htc_command_config
 {
     long int id;

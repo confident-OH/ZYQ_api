@@ -41,6 +41,7 @@
 #define DEVICE_FILE_NAME "ioctl_htc_dev" 
 #define DEVICE_PATH "/dev/ioctl_htc_dev"
 #define BUF_LEN 1024
+#define RING_LEN 512
 
 #define RUN_LINE_COMMAND 1
 
@@ -55,5 +56,7 @@ typedef union virtio_htc_ioctl_message
     char message[BUF_LEN];
     htc_ioctl_message_info command_message;
 }virtio_htc_ioctl_message;
+
+extern int virtio_htc_notifier_call(unsigned long val, void *v);
  
 #endif

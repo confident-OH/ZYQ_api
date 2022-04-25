@@ -19,9 +19,9 @@ static struct virtio_device_id id_table[] = {
 
 static struct virtio_htc *vb_dev;
 
-struct htc_return_host htc_return_list[256];
+struct htc_return_host ioctl_return_list[512];
 
-int htc_return_start, htc_return_end;
+int ioctl_return_start, ioctl_return_end;
 
 static RAW_NOTIFIER_HEAD(virtio_htc_chain_head);
 
@@ -139,10 +139,20 @@ static void htc_work_handle(struct work_struct *work)
         strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
         break;
     case 3:
+    {
         /* exec status */
+        while (ioctl_return_end != ioctl_return_start) {
+            vb->htc_ret.id = conf->id;
+            strcpy(vb->htc_ret.htc_command.command_str, ioctl_return_list[ioctl_return_start].htc_command.command_str);
+            ioctl_return_start = (ioctl_return_start + 1) % 512;
+            sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
+            virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+        }
         vb->htc_ret.id = conf->id;
-        strcpy(vb->htc_ret.htc_command.command_str, conf->command_str);
+        strcpy(vb->htc_ret.htc_command.command_str, "none");
         break;
+    }
+        
     default:
         break;
     }
@@ -162,8 +172,12 @@ int virtio_htc_notifier_event(struct notifier_block *nb, unsigned long event, vo
     {
     case EVENT_RUN_SUCCESS:
     {
-        htc_return_host *item = (htc_return_host *)v;
-        queue_work(system_freezable_wq, &(vb_dev->htc_handle));
+        char *item = (char *)v;
+        strcpy(ioctl_return_list[ioctl_return_end].htc_command.command_str, item);
+        ioctl_return_end = (ioctl_return_end + 1) % 512; // warning: if ret too many to store, will cover some data;
+        if (ioctl_return_end == ioctl_return_start) {
+            return RETURN_LIST_FULL;
+        }
         break;
     }
     default:
@@ -177,6 +191,13 @@ int virtio_htc_notifier_event(struct notifier_block *nb, unsigned long event, vo
 static struct notifier_block virtio_htc_notifier = {
     .notifier_call = virtio_htc_notifier_event, 
 };
+
+int virtio_htc_notifier_call(unsigned long val, void *v)
+{
+    return raw_notifier_call_chain(&virtio_htc_chain_head, val, v);
+}
+
+EXPORT_SYMBOL(virtio_htc_notifier_call);
 
 static void virtio_htc_changed(struct virtio_device *vdev)
 {
@@ -223,9 +244,9 @@ static int virttest_probe(struct virtio_device *vdev)
     atomic_set(&vb->stop_once, 0);
     vb_dev = vb;
 
-    htc_return_start = 0;
-    htc_return_end = 0;
-    memset(htc_return_list, 0, sizeof(htc_return_list));
+    ioctl_return_start = 0;
+    ioctl_return_end = 0;
+    memset(ioctl_return_list, 0, sizeof(ioctl_return_list));
 
     return 0;
 
