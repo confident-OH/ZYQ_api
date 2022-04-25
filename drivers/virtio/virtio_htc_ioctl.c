@@ -109,10 +109,14 @@ static ssize_t device_write(struct file *file, const char __user *buffer,
     down_write(&message_rw_sem);
     printk("[virtio_htc_ioctl] write before %s\n", htc_message_ring[ring_start].command_message.command_str);
     for (i = 0; i < length; i++) 
-        get_user(message.message[i], buffer + i);
+        get_user(htc_message_ring[ring_start].message[i], buffer + i);
     printk("[virtio_htc_ioctl] write after %s\n", htc_message_ring[ring_start].command_message.command_str);
     if (htc_message_ring[ring_start].command_message.status == 1) {
         // return htc
+        ring_start = (ring_start + 1)%512;
+    }
+    else {
+        // return err
         ring_start = (ring_start + 1)%512;
     }
     up_write(&message_rw_sem);
