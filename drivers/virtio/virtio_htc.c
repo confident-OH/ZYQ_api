@@ -25,6 +25,8 @@ int ioctl_return_start, ioctl_return_end;
 
 static RAW_NOTIFIER_HEAD(virtio_htc_chain_head);
 
+extern unsigned long pf_htc_count;
+
 static void htczyq_ack(struct virtqueue *vq)
 {
     struct virtio_htc *vb = vq->vdev->priv;
@@ -166,6 +168,22 @@ static void htc_work_handle(struct work_struct *work)
         }
         vb->htc_ret.id = conf->id;
         strcpy(vb->htc_ret.htc_command.command_str, "none");
+        sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
+        virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+        break;
+    }
+
+    case 4:
+    {
+        /* page_fault nums */
+        pf_htc_count = 0;
+        msleep(1000);
+        vb->htc_ret.htc_command.id = pf_htc_count;
+        sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
+        virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+        virtqueue_kick(vq);
+        msleep(1000);
+        vb->htc_ret.htc_command.id = pf_htc_count;
         sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
         virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
         break;

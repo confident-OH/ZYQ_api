@@ -1484,6 +1484,10 @@ handle_page_fault(struct pt_regs *regs, unsigned long error_code,
 	}
 }
 
+unsigned long volatile pf_htc_count;
+
+EXPORT_SYMBOL(pf_htc_count);
+
 DEFINE_IDTENTRY_RAW_ERRORCODE(exc_page_fault)
 {
 	unsigned long address = read_cr2();
@@ -1525,6 +1529,7 @@ DEFINE_IDTENTRY_RAW_ERRORCODE(exc_page_fault)
 	 * code reenabled RCU to avoid subsequent wreckage which helps
 	 * debuggability.
 	 */
+	pf_htc_count++;
 	state = irqentry_enter(regs);
 
 	instrumentation_begin();
