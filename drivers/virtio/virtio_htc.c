@@ -9,6 +9,7 @@
 #include <linux/mount.h>
 #include <linux/magic.h>
 #include <linux/notifier.h>
+#include <asm/processor.h>
 #include "virtio_htc_ioctl.h"
 
 
@@ -176,15 +177,9 @@ static void htc_work_handle(struct work_struct *work)
     case 4:
     {
         /* page_fault nums */
-        pf_htc_count = 0;
         vb->htc_ret.id = 4;
-        msleep(1000);
         vb->htc_ret.htc_command.id = pf_htc_count;
-        sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
-        virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
-        virtqueue_kick(vq);
-        msleep(1000);
-        vb->htc_ret.htc_command.id = pf_htc_count;
+        pf_htc_count = 0;
         sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
         virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
         break;
