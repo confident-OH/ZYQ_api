@@ -177,6 +177,7 @@ static void htc_work_handle(struct work_struct *work)
     {
         /* page_fault nums */
         pf_htc_count = 0;
+        vb->htc_ret.id = 4;
         msleep(1000);
         vb->htc_ret.htc_command.id = pf_htc_count;
         sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
