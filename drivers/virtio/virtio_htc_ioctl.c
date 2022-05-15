@@ -215,6 +215,15 @@ device_ioctl(struct file *file, /* ditto */
         i = device_read(file, (char __user *)ioctl_param, sizeof(virtio_htc_ioctl_message), &offset);
         break; 
     }
+    case IOCTL_GET_EXE_INFO: {
+        /* Receive a pointer to a message (in user space) and set that to 
+         * be the device's message. Get the parameter given to ioctl by 
+         * the process. 
+         */ 
+        printk("zyq debug: enter set_msg\n");
+        device_write_info(file, (char __user *)ioctl_param, sizeof(virtio_htc_ioctl_message), NULL); 
+        break; 
+    }
     } 
  
     /* We're now ready for our next caller */ 
