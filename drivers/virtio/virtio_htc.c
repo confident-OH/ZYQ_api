@@ -1,4 +1,5 @@
 #include <linux/virtio_htc.h>
+#include <linux/virtio_htc_othermod.h>
 #include <linux/swap.h>
 #include <linux/delay.h>
 #include <linux/slab.h>

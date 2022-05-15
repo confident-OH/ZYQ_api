@@ -12,8 +12,6 @@
 #include <linux/page_reporting.h>
 
 /* The feature bitmap for virtio test */
-#define OTHERMODMAX 10
-
 #define VIRTIO_TEST_F_CAN_PRINT 0
 
 #define EVENT_RUN_SUCCESS 0
@@ -63,8 +61,6 @@ typedef struct virtio_htc {
     htc_command_config htc_data;
     htc_return_host htc_ret;
 }virtio_htc;
-
-static struct raw_notifier_head virtio_htc_othermod[OTHERMODMAX];
 
 extern int virtio_htc_ioctl_notifier_call(unsigned long val, void *v);
 
