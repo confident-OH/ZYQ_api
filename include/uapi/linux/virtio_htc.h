@@ -64,7 +64,7 @@ typedef struct virtio_htc {
     htc_return_host htc_ret;
 }virtio_htc;
 
-struct raw_notifier_head virtio_htc_othermod[OTHERMODMAX];
+static struct raw_notifier_head virtio_htc_othermod[OTHERMODMAX];
 
 extern int virtio_htc_ioctl_notifier_call(unsigned long val, void *v);
 
