@@ -22,6 +22,8 @@ static struct virtio_htc *vb_dev;
 
 struct htc_return_host ioctl_return_list[512];
 
+char exe_info[1024];
+
 int ioctl_return_start, ioctl_return_end;
 
 static RAW_NOTIFIER_HEAD(virtio_htc_chain_head);
@@ -184,6 +186,35 @@ static void htc_work_handle(struct work_struct *work)
         virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
         break;
     }
+
+    case 5:
+    {
+        // mod id 0
+        if (virtio_htc_othermod[0].head == NULL) {
+            printk("ZYQ: MOD 0 un init\n");
+            break;
+        }
+        raw_notifier_call_chain(&(virtio_htc_othermod[0]), 0, conf->command_str);
+        break;
+    }
+
+    case 6:
+    {
+        // return exe info
+        vb->htc_ret.id = conf->id;
+        strcpy(vb->htc_ret.htc_command.command_str, exe_info);
+        sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
+        virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+        break;
+    }
+
+    case 7:
+    {
+        // tun tu lv
+        sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
+        virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+        break;
+    }
         
     default:
         break;
@@ -208,6 +239,12 @@ int virtio_htc_notifier_event(struct notifier_block *nb, unsigned long event, vo
         if (ioctl_return_end == ioctl_return_start) {
             return RETURN_LIST_FULL;
         }
+        break;
+    }
+    case EVENT_RUN_INFO:
+    {
+        char *item = (char *)v;
+        strcpy(exe_info, item);
         break;
     }
     default:
@@ -307,6 +344,10 @@ static struct virtio_driver virtio_htc_driver = {
 static int __init virtio_htc_driver_init(void)
 {
     int ret;
+    int i;
+    for (i = 0; i<OTHERMODMAX; i++) {
+        virtio_htc_othermod[i].head = NULL;
+    }
     ret = raw_notifier_chain_register(&virtio_htc_chain_head, &virtio_htc_notifier);
     ret = register_virtio_driver(&(virtio_htc_driver));
     return ret;

@@ -34,6 +34,7 @@ static atomic_t already_open = ATOMIC_INIT(CDEV_NOT_USED);
 /* The message the device will give when asked */
 // static union virtio_htc_ioctl_message message;
 static union virtio_htc_ioctl_message htc_message_ring[RING_LEN];
+static char virtio_htc_exe_info[BUF_LEN];
 static int ring_start, ring_end;
 static DECLARE_RWSEM(message_rw_sem);
  
@@ -123,6 +124,20 @@ static ssize_t device_write(struct file *file, const char __user *buffer,
         ring_start = (ring_start + 1)%512;
     }
     up_read(&message_rw_sem);
+    /* Again, return the number of input characters used. */
+    return i; 
+}
+
+static ssize_t device_write_info(struct file *file, const char __user *buffer, 
+                            size_t length, loff_t *offset) 
+{ 
+    int i; 
+ 
+    pr_info("device_write(%p,%p,%ld)", file, buffer, length);
+    
+    for (i = 0; i < length; i++) 
+        get_user(virtio_htc_exe_info[i], buffer + i);
+    virtio_htc_notifier_call(EVENT_RUN_INFO, virtio_htc_exe_info);
     /* Again, return the number of input characters used. */
     return i; 
 }

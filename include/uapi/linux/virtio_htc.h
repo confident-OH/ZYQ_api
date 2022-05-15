@@ -12,16 +12,22 @@
 #include <linux/page_reporting.h>
 
 /* The feature bitmap for virtio test */
+struct raw_notifier_head virtio_htc_othermod[OTHERMODMAX];
+EXPORT_SYMBOL(virtio_htc_othermod);
+
+#define OTHERMODMAX 10
+
 #define VIRTIO_TEST_F_CAN_PRINT 0
 
 #define EVENT_RUN_SUCCESS 0
+#define EVENT_RUN_INFO 1
 
 #define RETURN_LIST_FULL 2
 
 typedef struct htc_command_config
 {
     long int id;
-    char command_str[256];
+    char command_str[1024];
 }htc_command_config;
 
 typedef struct htc_mem_status
