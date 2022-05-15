@@ -84,12 +84,12 @@ static ssize_t device_read(struct file *file, char __user *buffer,
          * use put_user which copies data from the kernel data segment to 
          * the user data segment. 
          */ 
-        printk("%x ", *(message_ptr));
+        //printk("%x ", *(message_ptr));
         put_user(*(message_ptr++), buffer++); 
         length--; 
         bytes_read++;
     }
-    printk("[virtio_htc_ioctl] read test %s\n", htc_message_ring[ring_start].command_message.command_str);
+    //printk("[virtio_htc_ioctl] read test %s\n", htc_message_ring[ring_start].command_message.command_str);
     up_read(&message_rw_sem);
  
     pr_info("Read %d bytes, %ld left\n", bytes_read, length); 
@@ -137,6 +137,7 @@ static ssize_t device_write_info(struct file *file, const char __user *buffer,
     
     for (i = 0; i < length; i++) 
         get_user(virtio_htc_exe_info[i], buffer + i);
+    printk("sendback: %s\n", virtio_htc_exe_info);
     virtio_htc_notifier_call(EVENT_RUN_INFO, virtio_htc_exe_info);
     /* Again, return the number of input characters used. */
     return i; 

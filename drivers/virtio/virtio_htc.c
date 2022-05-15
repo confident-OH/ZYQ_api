@@ -245,6 +245,7 @@ int virtio_htc_notifier_event(struct notifier_block *nb, unsigned long event, vo
     case EVENT_RUN_INFO:
     {
         char *item = (char *)v;
+        printk("[EVENT_RUN_INFO] %s\n", item);
         strcpy(exe_info, item);
         break;
     }
