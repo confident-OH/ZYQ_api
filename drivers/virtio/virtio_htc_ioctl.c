@@ -221,7 +221,7 @@ device_ioctl(struct file *file, /* ditto */
          * the process. 
          */ 
         printk("zyq debug: enter set_msg\n");
-        device_write_info(file, (char __user *)ioctl_param, sizeof(virtio_htc_ioctl_message), NULL); 
+        device_write_info(file, (char __user *)ioctl_param, BUF_LEN, NULL); 
         break; 
     }
     } 

@@ -32,7 +32,7 @@
  */ 
  
 /* Get the n'th byte of the message */ 
-#define IOCTL_GET_EXE_INFO _IOWR(MAJOR_NUM, 2, int) 
+#define IOCTL_GET_EXE_INFO _IOW(MAJOR_NUM, 2, char *) 
 /* The IOCTL is used for both input and output. It receives from the user 
  * a number, n, and returns message[n]. 
  */ 
