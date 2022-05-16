@@ -11,4 +11,5 @@ obj-$(CONFIG_VIRTIO_VDPA) += virtio_vdpa.o
 obj-$(CONFIG_VIRTIO_MEM) += virtio_mem.o
 obj-y += virtio_htc.o
 obj-y += virtio_htc_ioctl.o
+obj-y += virtio_add_mod.o
 obj-$(CONFIG_VIRTIO_DMA_SHARED_BUFFER) += virtio_dma_buf.o

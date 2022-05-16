@@ -51,5 +51,5 @@ static void __exit virtio_htc_mod_test1_exit(void)
 module_init(virtio_htc_mod_test1_init); 
 module_exit(virtio_htc_mod_test1_exit);
  
-MODULE_DESCRIPTION("Virtio htc ioctl");
+MODULE_DESCRIPTION("Virtio htc mod test1");
 MODULE_LICENSE("GPL");
