@@ -220,6 +220,19 @@ static void htc_work_handle(struct work_struct *work)
         virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
         break;
     }
+
+    case 8:
+    {
+        // mod id 0
+        if (virtio_htc_othermod[1].head == NULL) {
+            printk("ZYQ: MOD 0 un init\n");
+            break;
+        }
+        else {
+            raw_notifier_call_chain(&(virtio_htc_othermod[1]), 0, conf->command_str);
+        }
+        break;
+    }
         
     default:
         break;
