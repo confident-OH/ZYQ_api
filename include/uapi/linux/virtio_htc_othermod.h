@@ -4,6 +4,4 @@
 
 #define OTHERMODMAX 10
 
-struct raw_notifier_head virtio_htc_othermod[OTHERMODMAX];
-
 #endif /* _LINUX_VIRTIO_HTC_OTHERMOD */

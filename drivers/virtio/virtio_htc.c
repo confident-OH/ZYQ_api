@@ -28,6 +28,8 @@ char exe_info[1024];
 int ioctl_return_start, ioctl_return_end;
 
 static RAW_NOTIFIER_HEAD(virtio_htc_chain_head);
+struct raw_notifier_head virtio_htc_othermod[OTHERMODMAX];
+EXPORT_SYMBOL(virtio_htc_othermod);
 
 extern unsigned long pf_htc_count;
 
@@ -195,7 +197,9 @@ static void htc_work_handle(struct work_struct *work)
             printk("ZYQ: MOD 0 un init\n");
             break;
         }
-        raw_notifier_call_chain(&(virtio_htc_othermod[0]), 0, conf->command_str);
+        else {
+            raw_notifier_call_chain(&(virtio_htc_othermod[0]), 0, conf->command_str);
+        }
         break;
     }
 
