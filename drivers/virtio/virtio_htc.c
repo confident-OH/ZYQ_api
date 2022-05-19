@@ -25,6 +25,10 @@ int num_recv;
 unsigned long zyq_send_start, zyq_send_end, zyq_send_all;
 int num_send;
 
+char htc_ret_test_1K[1024];
+char htc_ret_test_10K[10240];
+char htc_ret_test_100K[102400];
+
 static struct virtio_htc *vb_dev;
 
 struct htc_return_host ioctl_return_list[512];

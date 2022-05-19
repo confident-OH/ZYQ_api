@@ -62,10 +62,6 @@ typedef struct virtio_htc {
     htc_return_host htc_ret;
 }virtio_htc;
 
-char htc_ret_test_1K[1024];
-char htc_ret_test_10K[10240];
-char htc_ret_test_100K[102400];
-
 extern int virtio_htc_ioctl_notifier_call(unsigned long val, void *v);
 
 #endif /* _LINUX_VIRTIO_TEST_H */
