@@ -99,7 +99,7 @@ static void htc_work_func(struct work_struct *work)
     struct virtio_htc *vb;
     struct scatterlist sg;
     unsigned int unused;
-
+    zyq_recv_start = rdtsc();
     vb = container_of(work, struct virtio_htc, htc_work);
 
     struct virtqueue *vq = vb->htc_command_vq;
@@ -111,7 +111,7 @@ static void htc_work_func(struct work_struct *work)
     
     // printk("zyq debug send back the conf");
     // msleep(30000);
-    zyq_recv_start = rdtsc();
+
     virtqueue_kick(vq);
     wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
     zyq_recv_end = rdtsc();
