@@ -1,7 +1,7 @@
 # HTC driver linux
 
 compile:
-cp /boot/config-5.4.0-56-generic /usr/src/inux-5.9.12/.config
+cp /boot/config-5.14.7+ .config
 make oldconfig
 make -j 4
 sudo make INSTALL_MOD_STRIP=1 modules_install
