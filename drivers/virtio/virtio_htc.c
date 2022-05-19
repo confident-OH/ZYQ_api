@@ -216,8 +216,23 @@ static void htc_work_handle(struct work_struct *work)
     case 7:
     {
         // tun tu lv
-        sg_init_one(&sg, &vb->htc_ret, sizeof(vb->htc_ret));
-        virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+        switch (conf->command_str[0])
+        {
+        case '1':
+            sg_init_one(&sg, &htc_ret_test_1K, sizeof(htc_ret_test_1K));
+            virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+            break;
+        case '2':
+            sg_init_one(&sg, &htc_ret_test_10K, sizeof(htc_ret_test_10K));
+            virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+            break;
+        case '3':
+            sg_init_one(&sg, &htc_ret_test_100K, sizeof(htc_ret_test_100K));
+            virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
+            break;
+        default:
+            break;
+        }
         break;
     }
 
