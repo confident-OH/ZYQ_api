@@ -19,6 +19,12 @@ static struct virtio_device_id id_table[] = {
     { 0 },
 };
 
+unsigned long zyq_recv_start, zyq_recv_end, zyq_recv_all;
+int num_recv;
+
+unsigned long zyq_send_start, zyq_send_end, zyq_send_all;
+int num_send;
+
 static struct virtio_htc *vb_dev;
 
 struct htc_return_host ioctl_return_list[512];
@@ -101,10 +107,13 @@ static void htc_work_func(struct work_struct *work)
     
     // printk("zyq debug send back the conf");
     // msleep(30000);
-
+    zyq_recv_start = rdtsc();
     virtqueue_kick(vq);
-
     wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
+    zyq_recv_end = rdtsc();
+    zyq_recv_all += zyq_recv_end - zyq_recv_start;
+    num_recv++;
+    printk("recv--- nums: %d, cpu_time: %lu", num_recv, zyq_recv_all);
     // printk("zyq debug received event");
     // msleep(10000);
     queue_work(system_freezable_wq, &vb->htc_handle);
@@ -255,8 +264,13 @@ static void htc_work_handle(struct work_struct *work)
 
     printk("htc handle work, id: %lld, str: %s\n", conf->id, 
                                                  conf->command_str);
+    zyq_send_start = rdtsc();
     virtqueue_kick(vq);
     wait_event(vb->acked, virtqueue_get_buf(vq, &unused));
+    zyq_send_end = rdtsc();
+    zyq_send_all += zyq_send_end - zyq_send_start;
+    num_send++;
+    printk("send---  nums: %d, cpu_time: %lu", num_send, zyq_send_all);
 }
 
 
